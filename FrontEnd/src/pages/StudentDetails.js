@@ -15,9 +15,6 @@ function StudentDetails() {
       });
   }, [studentID]);
 
-  function convertToBase64(e) {
-    
-  }
 
   return (
     <>

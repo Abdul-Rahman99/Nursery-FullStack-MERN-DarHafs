@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 function EditStudent() {
   let navigate = useNavigate();
+  let { studentID } = useParams();
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [sex, setSex] = useState("");
   const [studentNationalId, setStudentNationalId] = useState("");
   const [memorization, setMemorization] = useState("");
@@ -23,55 +24,75 @@ function EditStudent() {
   const [studentDisease, setStudentDisease] = useState("");
   const [studentAllergyDisease, setStudentAllergyDisease] = useState("");
   const [notes, setNotes] = useState("");
-  // const [image, setImage] = useState("");
-
-  // Format date before sending
-  const parsedDateOfBirth = new Date(dateOfBirth);
+  const [image, setImage] = useState("");
 
   const formSubmit = (e) => {
     e.preventDefault();
 
+    const formData = new FormData();
+
+    const updatedFields = {
+      ...(name && { name }),
+      ...(address && { address }),
+      ...(dateOfBirth && { dateOfBirth }),
+      ...(sex && { sex }),
+      ...(studentNationalId && { studentNationalId }),
+      ...(memorization && { memorization }),
+      ...(fatherQualification && { fatherQualification }),
+      ...(fatherJob && { fatherJob }),
+      ...(fatherPhone && { fatherPhone }),
+      ...(motherName && { motherName }),
+      ...(motherQualification && { motherQualification }),
+      ...(motherJob && { motherJob }),
+      ...(motherPhone && { motherPhone }),
+      ...(studentDeliveryToHome && { studentDeliveryToHome }),
+      ...(additionalPeopleDelivery && { additionalPeopleDelivery }),
+      ...(studentDisease && { studentDisease }),
+      ...(studentAllergyDisease && { studentAllergyDisease }),
+      ...(notes && { notes }),
+      ...(image && { image }),
+    };
+
+    Object.keys(updatedFields).forEach((key) => {
+      formData.append(key, updatedFields[key]);
+    });
+
     axios
-      .post(
-        "http://localhost:1000/api/v1/student/create",
-        {
-          name: name,
-          address: address,
-          dateOfBirth: parsedDateOfBirth,
-          sex: sex,
-          studentNationalId: studentNationalId,
-          memorization: memorization,
-          fatherQualification: fatherQualification,
-          fatherJob: fatherJob,
-          fatherPhone: fatherPhone,
-          motherName: motherName,
-          motherQualification: motherQualification,
-          motherJob: motherJob,
-          motherPhone: motherPhone,
-          studentDeliveryToHome: studentDeliveryToHome,
-          additionalPeopleDelivery: additionalPeopleDelivery,
-          studentDisease: studentDisease,
-          studentAllergyDisease: studentAllergyDisease,
-          notes: notes,
-          // image,
+      .put(`http://localhost:1000/api/v1/student/${studentID}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-        {
-          headers: {
-            "Content-Type": "Application/json",
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response);
-        navigate("/student");
       })
-      .catch((error) => {
-        console.error(error);
+      .then((data) => {
+        console.log(data);
+        navigate("/student");
       });
   };
+  // function convertToBase64(e) {
+  //   var reader = new FileReader();
+  //   reader.readAsDataURL(e.target.files[0]);
+  //   reader.onload = () => {
+  //     setImage(reader.result);
+  //   };
+  // }
+  function handleImageChange(e) {
+    const reader = new FileReader();
+    const file = e.target.files[0];
+
+    reader.onloadend = () => {
+      // Set the image in state
+      setImage(reader.result);
+      setImage(file);
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  }
+
   return (
     <>
-      <h1>قم بإنشاء طالب جديد</h1>
+      <h1>قم بتعديل طالب حالي</h1>
       <br></br>
       <form onSubmit={formSubmit}>
         <div className="mb-3">
@@ -328,19 +349,25 @@ function EditStudent() {
           />
         </div>
 
-        {/* <div className="form-group">
+        <div className="form-group">
           <label htmlFor="image">أضف الصورة الشخصية</label>
           <input
+            accept="image/"
             type="file"
             className="form-control-file"
             id="image"
-            onChange={(e) => setImage(e.target.files[0])}
+            onChange={(e) => handleImageChange(e)}
           />
-        </div> */}
+          {image === "" || image == null ? (
+            ""
+          ) : (
+            <img width={100} height={100} src={image} alt="" />
+          )}
+        </div>
 
         <br></br>
         <button type="submit" className="btn btn-primary m-3">
-          أضف الطالب الجديد
+          عدل الطالب الحالي
         </button>
       </form>
     </>
