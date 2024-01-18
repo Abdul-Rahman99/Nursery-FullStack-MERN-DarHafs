@@ -21,7 +21,7 @@ router.route("/create").post(createTeacher);
 router
   .route("/:id")
   .get(getTeacherValidator, getTeacher)
-  .put(updateTeacherValidator, updateTeacher)
+  .put( updateTeacher)
   .delete(deleteTeacherValidator, deleteTeacher);
 
 module.exports = router;

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-
-import { Card } from "react-bootstrap";
+import { Button, Card, Form } from "react-bootstrap";
 
 function EditStudent() {
   let navigate = useNavigate();
@@ -33,34 +32,28 @@ function EditStudent() {
     const formData = new FormData();
 
     const updatedFields = {
-      name,
-      address,
-      dateOfBirth,
-      sex,
-      studentNationalId,
-      memorization,
-      fatherQualification,
-      fatherJob,
-      fatherPhone,
-      motherName,
-      motherQualification,
-      motherJob,
-      motherPhone,
-      studentDeliveryToHome,
-      additionalPeopleDelivery,
-      studentDisease,
-      studentAllergyDisease,
-      notes,
+      ...(name && { name }),
+      ...(address && { address }),
+      ...(dateOfBirth && { dateOfBirth }),
+      ...(sex && { sex }),
+      ...(studentNationalId && { studentNationalId }),
+      ...(memorization && { memorization }),
+      ...(fatherQualification && { fatherQualification }),
+      ...(fatherJob && { fatherJob }),
+      ...(fatherPhone && { fatherPhone }),
+      ...(motherName && { motherName }),
+      ...(motherQualification && { motherQualification }),
+      ...(motherJob && { motherJob }),
+      ...(motherPhone && { motherPhone }),
+      ...(studentDeliveryToHome && { studentDeliveryToHome }),
+      ...(additionalPeopleDelivery && { additionalPeopleDelivery }),
+      ...(studentDisease && { studentDisease }),
+      ...(studentAllergyDisease && { studentAllergyDisease }),
+      ...(notes && { notes }),
     };
 
-    Object.entries(updatedFields).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        if (key === "photo" || key === "capturedBlob") {
-          formData.append(key, value);
-        } else {
-          formData.append(key, JSON.stringify(value));
-        }
-      }
+    Object.keys(updatedFields).forEach((key) => {
+      formData.append(key, updatedFields[key]);
     });
 
     axios
@@ -76,10 +69,9 @@ function EditStudent() {
   };
 
   return (
-    <Card className="mx-auto mt-5 p-4">
-      <h1>قم بتعديل طالب حالي</h1>
-      <br></br>
-      <form onSubmit={formSubmit}>
+    <Card className="mx-auto mt-5 p-4" style={{ maxWidth: "600px" }}>
+      <h1 className="text-center mb-4">قم بتعديل طالب حالي</h1>
+      <Form onSubmit={formSubmit}>
         <div className="mb-3">
           <label htmlFor="studentName" className="form-label">
             الإسم
@@ -207,13 +199,13 @@ function EditStudent() {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="motherName" className="form-label">
+          <label htmlFor="motehrName" className="form-label">
             اسم الأم
           </label>
           <input
             type="text"
             className="form-control"
-            id="motherName"
+            id="motehrName"
             placeholder="أدخل اسم الأم"
             aria-describedby="Mother Name"
             onChange={(e) => setMotherName(e.target.value)}
@@ -335,10 +327,10 @@ function EditStudent() {
         </div>
 
         <br></br>
-        <button type="submit" className="btn btn-primary m-3">
+        <Button type="submit" className="btn btn-primary m-3">
           عدل الطالب الحالي
-        </button>
-      </form>
+        </Button>
+      </Form>
     </Card>
   );
 }

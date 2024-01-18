@@ -25,7 +25,7 @@ function TeacherDetails() {
               <div className="card-body">
                 <h2 className="card-title">الاسم: {teacher.name}</h2>
                 <p className="card-text">
-                  تاريخ الميلاد: {teacher.dateOfBirth.slice(1, 10)}
+                  تاريخ الميلاد: {teacher.dateOfBirth.slice(0, 10)}
                 </p>
                 <p className="card-text">الرقم القومي: {teacher.nationalId}</p>
                 <p className="card-text">العنوان: {teacher.address}</p>

@@ -307,7 +307,7 @@ function CreateTeacher() {
 
         <Form.Group className="mb-3">
           <Form.Label>التخصص الدقيق</Form.Label>
-          <Form.Select
+          <Form.Control
             type="text"
             className={`form-control ${
               errors.exactSpecialization ? "is-invalid" : ""

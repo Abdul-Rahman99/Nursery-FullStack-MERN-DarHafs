@@ -110,7 +110,7 @@ function Teachers() {
             <th>الإسم</th>
             <th>السن</th>
             <th>رقم المعلم</th>
-            <th>التخصص</th>
+            <th>المؤهل</th>
             <th>الخيارات</th>
           </tr>
         </thead>
