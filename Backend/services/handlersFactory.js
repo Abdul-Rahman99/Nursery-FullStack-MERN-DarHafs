@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
+const fs = require("fs").promises;
 const ApiError = require("../utils/apiError");
-// const ApiFeatures = require("../utils/apiFeatures");
 
 exports.deleteOne = (Model) =>
   asyncHandler(async (req, res, next) => {
@@ -29,8 +29,35 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   asyncHandler(async (req, res) => {
-    const newDocument = await Model.create(req.body);
-    res.status(201).json({ data: newDocument });
+    // Check if a file was uploaded
+    // if (!req.file) {
+    //   return res.status(400).json({ error: "No image uploaded" });
+    // }
+
+    const imageBuffer = await fs.readFile(req.file.path);
+
+    const documentData = {
+      [imageFieldName]: {
+        data: imageBuffer,  
+        contentType: req.file.mimetype,
+      },
+    };
+
+    otherFieldNames.forEach((field) => {
+      documentData[field] = req.body[field];
+    });
+
+    try {
+      const newDocument = await Model.create(documentData);
+
+      // Delete the temporary file after processing
+      await fs.unlink(req.file.path);
+
+      res.status(201).json({ data: newDocument });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
   });
 
 exports.getOne = (Model) =>
@@ -45,29 +72,6 @@ exports.getOne = (Model) =>
 
 exports.getAll = (Model, modelName = "") =>
   asyncHandler(async (req, res) => {
-    // let filter = {};
-    // if (req.filterObj) {
-    //   filter = req.filterObj;
-    // }
-    // Build query
-    // const documentsCounts = await Model.countDocuments();
-    // const apiFeatures = new ApiFeatures(Model.find(filter), req.query)
-    //   .paginate(documentsCounts)
-    //   .filter()
-    //   .search(modelName)
-    //   .limitFields()
-    //   .sort();
-
-    // Execute query
-    // const { mongooseQuery, paginationResult } = apiFeatures;
-    // const documents = await mongooseQuery;
-
-    // res
-    //   .status(200)
-    //   .json({
-    //     results: documents.length,
-    //     /*paginationResult,*/ data: documents,
-    //   });
     const { id } = req.params;
     const document = await Model.find({});
     if (!document) {

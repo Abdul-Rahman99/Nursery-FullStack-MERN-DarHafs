@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
 import Swal from "sweetalert2";
+import Search from "../../components/Search"; // Import the StudentSearch component
+import { Button, Card, Table } from "react-bootstrap";
 
 function calculateAge(birthDate) {
   const today = new Date();
@@ -18,24 +19,40 @@ function calculateAge(birthDate) {
 }
 
 function Student() {
-  const [student, setStudent] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     getAllStudents();
   }, []);
+
+  useEffect(() => {
+    // Update filtered students whenever the searchQuery changes
+    const searchTerm = searchQuery.toLowerCase();
+    const filteredResults = students.filter(
+      (student) =>
+        student.name.toLowerCase().includes(searchTerm) ||
+        student.studentNationalId.toLowerCase().includes(searchTerm) ||
+        student.fatherPhone.toLowerCase().includes(searchTerm)
+    );
+
+    setFilteredStudents(filteredResults);
+  }, [searchQuery, students]);
 
   const getAllStudents = () => {
     fetch("http://localhost:1000/api/v1/student")
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        setStudent(data);
+        setStudents(data);
+        setFilteredStudents(data); // Initialize filteredStudents with all students
       });
   };
 
   const deleteStudent = (student) => {
     Swal.fire({
-      title: `Are you sure to Delete ${student.name} ${student.fatherName}?`,
+      title: `Are you sure to Delete ${student.name}?`,
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -74,36 +91,43 @@ function Student() {
     });
   };
 
-  return (
-    <>
-      <h1>صفحة الطلاب</h1>
+  const handleSearch = (searchQuery) => {
+    setSearchQuery(searchQuery);
+  };
 
+  return (
+    <Card className="m-3 p-3">
+      <h1 className="text-center m-5">صفحة الطلاب</h1>
+      <Search onSearch={handleSearch} />
       <Link to={"/student/create"} className="btn btn-success m-2">
         إضافة طالب جديد
       </Link>
 
-      <table className="table table-striped mt-1">
+      <Table striped bordered hover className="mt-3">
         <thead>
           <tr>
             <th>الإسم</th>
             <th>السن</th>
             <th>رقم ولي الأمر</th>
+            <th>الخيارات</th>
           </tr>
         </thead>
         <tbody>
-          {student.map((student) => {
+          {filteredStudents.map((student) => {
             return (
               <tr key={student._id}>
                 <td>{student.name}</td>
                 <td>{calculateAge(student.dateOfBirth)}</td>
-                <td>{student.fatherPhone}</td>
                 <td>
-                  <button
-                    className="btn btn-danger btn-sm m-1"
+                  {student.fatherPhone} / {student.motherPhone}
+                </td>
+                <td>
+                  <Button variant="danger" size="sm" 
+                    className="m-1"
                     onClick={() => deleteStudent(student)}
                   >
                     حذف
-                  </button>
+                  </Button>
                   <Link
                     to={`/student/${student._id}`}
                     className="btn btn-info btn-sm m-1"
@@ -121,8 +145,9 @@ function Student() {
             );
           })}
         </tbody>
-      </table>
-    </>
+      </Table>
+    </Card>
   );
 }
+
 export default Student;

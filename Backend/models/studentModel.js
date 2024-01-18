@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema(
   {
-    // student Schema
     name: {
       type: String,
       required: [true, "إسم الطالب مطلوب"],
@@ -78,10 +77,8 @@ const studentSchema = new mongoose.Schema(
       type: String,
       enum: ["father", "nursery"], // Assuming two options for delivery
     },
-    additionalPeopleDelivery: {
-      name: String,
-      relation: String,
-    },
+    additionalPeopleDelivery: String,
+
     studentDisease: String,
     studentAllergyDisease: String,
     notes: String,
@@ -90,8 +87,10 @@ const studentSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-
-    image: String,
+    photo: {
+      data: Buffer,
+      contentType: String,
+    },
   },
   { timestamps: true }
 );

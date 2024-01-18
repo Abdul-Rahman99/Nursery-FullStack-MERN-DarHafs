@@ -1,13 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
-function CreateStudent() {
+import { Card } from "react-bootstrap";
+
+function EditStudent() {
   let navigate = useNavigate();
+  let { studentID } = useParams();
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [sex, setSex] = useState("");
   const [studentNationalId, setStudentNationalId] = useState("");
   const [memorization, setMemorization] = useState("");
@@ -23,35 +26,45 @@ function CreateStudent() {
   const [studentDisease, setStudentDisease] = useState("");
   const [studentAllergyDisease, setStudentAllergyDisease] = useState("");
   const [notes, setNotes] = useState("");
-  const [image, setImage] = useState("");
 
   const formSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
 
-    formData.append("name", name);
-    formData.append("address", address);
-    formData.append("dateOfBirth", dateOfBirth);
-    formData.append("sex", sex);
-    formData.append("studentNationalId", studentNationalId);
-    formData.append("memorization", memorization);
-    formData.append("fatherQualification", fatherQualification);
-    formData.append("fatherJob", fatherJob);
-    formData.append("fatherPhone", fatherPhone);
-    formData.append("motherName", motherName);
-    formData.append("motherQualification", motherQualification);
-    formData.append("motherJob", motherJob);
-    formData.append("motherPhone", motherPhone);
-    formData.append("studentDeliveryToHome", studentDeliveryToHome);
-    formData.append("additionalPeopleDelivery", additionalPeopleDelivery);
-    formData.append("studentDisease", studentDisease);
-    formData.append("studentAllergyDisease", studentAllergyDisease);
-    formData.append("notes", notes);
-    formData.append("image", image);
+    const updatedFields = {
+      name,
+      address,
+      dateOfBirth,
+      sex,
+      studentNationalId,
+      memorization,
+      fatherQualification,
+      fatherJob,
+      fatherPhone,
+      motherName,
+      motherQualification,
+      motherJob,
+      motherPhone,
+      studentDeliveryToHome,
+      additionalPeopleDelivery,
+      studentDisease,
+      studentAllergyDisease,
+      notes,
+    };
+
+    Object.entries(updatedFields).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        if (key === "photo" || key === "capturedBlob") {
+          formData.append(key, value);
+        } else {
+          formData.append(key, JSON.stringify(value));
+        }
+      }
+    });
 
     axios
-      .post("http://localhost:1000/api/v1/student/create", formData, {
+      .put(`http://localhost:1000/api/v1/student/${studentID}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -61,31 +74,10 @@ function CreateStudent() {
         navigate("/student");
       });
   };
-  // function convertToBase64(e) {
-  //   var reader = new FileReader();
-  //   reader.readAsDataURL(e.target.files[0]);
-  //   reader.onload = () => {
-  //     setImage(reader.result);
-  //   };
-  // }
-  function handleImageChange(e) {
-    const reader = new FileReader();
-    const file = e.target.files[0];
-
-    reader.onloadend = () => {
-      // Set the image in state
-      setImage(reader.result);
-      setImage(file);
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  }
 
   return (
-    <>
-      <h1>قم بإنشاء طالب جديد</h1>
+    <Card className="mx-auto mt-5 p-4">
+      <h1>قم بتعديل طالب حالي</h1>
       <br></br>
       <form onSubmit={formSubmit}>
         <div className="mb-3">
@@ -215,13 +207,13 @@ function CreateStudent() {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="motehrName" className="form-label">
+          <label htmlFor="motherName" className="form-label">
             اسم الأم
           </label>
           <input
             type="text"
             className="form-control"
-            id="motehrName"
+            id="motherName"
             placeholder="أدخل اسم الأم"
             aria-describedby="Mother Name"
             onChange={(e) => setMotherName(e.target.value)}
@@ -342,29 +334,13 @@ function CreateStudent() {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="image">أضف الصورة الشخصية</label>
-          <input
-            accept="image/"
-            type="file"
-            className="form-control-file"
-            id="image"
-            onChange={(e) => handleImageChange(e)}
-          />
-          {image === "" || image == null ? (
-            ""
-          ) : (
-            <img width={100} height={100} src={image} alt="" />
-          )}
-        </div>
-
         <br></br>
         <button type="submit" className="btn btn-primary m-3">
-          أضف الطالب الجديد
+          عدل الطالب الحالي
         </button>
       </form>
-    </>
+    </Card>
   );
 }
 
-export default CreateStudent;
+export default EditStudent;

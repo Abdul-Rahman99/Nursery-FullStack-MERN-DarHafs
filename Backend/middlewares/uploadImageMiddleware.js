@@ -1,26 +1,19 @@
 const multer = require("multer");
+const path = require("path");
 
-const ApiError = require("../utils/apiError");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+    );
+  },
+});
 
-const multerOptions = () => {
-  const multerStorage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-  // check if the file is image or not
-  const multerFilter = function (req, file, cb) {
-    if (file.mimetype.startsWith("image")) {
-      cb(null, true);
-    } else {
-      cb(new ApiError("Only Images allowed", 400), false);
-    }
-  };
-
-  // upload itself
-  const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
-
-  return upload;
-};
-
-exports.uploadSingleImage = (fieldName) => multerOptions().single(fieldName);
-
-exports.uploadMixOfImages = (arrayOfFields) =>
-  multerOptions().fields(arrayOfFields);
+module.exports = upload;

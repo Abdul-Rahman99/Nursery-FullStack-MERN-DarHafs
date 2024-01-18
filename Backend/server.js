@@ -5,19 +5,14 @@ const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const cors = require("cors");
+var bodyParser = require("body-parser");
 
 dotenv.config({ path: "config.env" });
 
 const ApiError = require("./utils/apiError");
 const Database = require("./config/database");
 
-// const userRoute = require("./routes/usersRoute");
-// const authRoute = require("./routes/authRoute");
-
-const studentRoute = require("./routes/studentRoute");
-const teacherRoute = require("./routes/teacherRoute");
-
-// const { connectToMongoDB } = require("./services/googleSheetsIntegration");
+const mountRoutes = require("./routes");
 
 // connect to the database
 new Database();
@@ -26,9 +21,17 @@ new Database();
 const app = express();
 
 // Middlewares
+
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+app.use("/uploads", express.static("uploads"));
 app.use(cors());
+app.options("*", cors());
 app.use(express.json()); // parsing to json
-app.options("*" , cors())
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -36,11 +39,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // Mount Routes
-// app.use("/api/v1/users", userRoute);
-// app.use("/api/v1/auth", authRoute);
-
-app.use("/api/v1/student", studentRoute);
-app.use("/api/v1/teacher", teacherRoute);
+mountRoutes(app);
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));

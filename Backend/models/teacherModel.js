@@ -4,22 +4,22 @@ const teacherSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "إسم الطالب مطلوب"],
+      required: [true, "إسم المعلم مطلوب"],
       minlength: [3, "أقل من اللازم"],
-      maxlength: [32, "أكثر من اللازم"],
     },
     slug: {
       type: String,
       lowercase: true,
     },
-    age: {
-      type: Number,
+    dateOfBirth: {
+      type: Date,
       required: [true, "العمر مطلوب"],
     },
-    phone: {
-      unique: [true],
+    nationalId: {
+      unique: true,
       type: String,
-      required: [true, "Please insert phone number"],
+      minlength: [14, "الرقم القومي اقل من 14 رقم"],
+      maxlength: [14, "الرقم القومي اكثر من 14 رقم"],
     },
     address: {
       type: String,
@@ -27,15 +27,37 @@ const teacherSchema = new mongoose.Schema(
       minlength: [3, "أقل من اللازم"],
       maxlength: [150, "أكثر من اللازم"],
     },
-    nationalId: {
-      unique: [true, "Phone in unique"],
+    maritalStatus: {
       type: String,
-      minlength: [14, "الرقم القومي اقل من 14 رقم"],
-      maxlength: [14, "الرقم القومي اكثر من 14 رقم"],
+      enum: ["single", "married"],
+      required: [true, "الحالة الاجتماعية مطلوبة"],
     },
-    qualification: {
+    numberOfKids: Number,
+    qualification: String,
+    specialization: String,
+    exactSpecialization: String,
+    graduationYear: Number,
+
+    previousExperience: String,
+    kidsExperience: String,
+
+    phone: {
+      unique: true,
       type: String,
+      required: true,
     },
+    homePhone: {
+      unique: true,
+      type: String,
+      required: true,
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+
+    readingTest: String,
+    handWritingTest: String,
   },
   { timestamps: true }
 );

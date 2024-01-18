@@ -12,20 +12,20 @@ const {
   createStudent,
   updateStudent,
   deleteStudent,
-  uploadStudentImage,
-  resizeImage,
 } = require("../services/studentService");
+const upload = require("../middlewares/uploadImageMiddleware");
+const studentModel = require("../models/studentModel");
 
 const router = express.Router();
 
 router.route("/").get(getStudents);
 router
   .route("/create")
-  .post(uploadStudentImage, resizeImage, createStudent);
+  .post(upload.single("photo"), createStudent(studentModel));
 router
   .route("/:id")
   .get(getStudentValidator, getStudent)
-  .put(uploadStudentImage, resizeImage, updateStudentValidator, updateStudent)
+  .put(upload.single("photo"), updateStudentValidator, updateStudent)
   .delete(deleteStudentValidator, deleteStudent);
 
 module.exports = router;

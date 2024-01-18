@@ -25,9 +25,9 @@ exports.createStudentValidator = [
     .notEmpty()
     .withMessage("Father Phone Required")
     .isLength({ min: 12 })
-    .withMessage("Number should be 12 charcters started with (20)")
+    .withMessage("Number should be 11 charcters started with (0)")
     .isLength({ max: 12 })
-    .withMessage("Number should be 12 charcters started with (20)"),
+    .withMessage("Number should be 11 charcters started with (0)"),
   check("address")
     .notEmpty()
     .withMessage("Address required")

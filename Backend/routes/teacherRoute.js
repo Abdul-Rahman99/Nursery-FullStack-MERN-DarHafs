@@ -17,7 +17,7 @@ const {
 const router = express.Router();
 
 router.route("/").get(getTeachers);
-router.route("/create").post(createTeacherValidator, createTeacher);
+router.route("/create").post(createTeacher);
 router
   .route("/:id")
   .get(getTeacherValidator, getTeacher)

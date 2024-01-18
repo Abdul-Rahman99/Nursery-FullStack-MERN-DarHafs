@@ -1,29 +1,8 @@
-const asyncHandler = require("express-async-handler");
-const { v4: uuidv4 } = require("uuid");
-const sharp = require("sharp");
-
 const factory = require("./handlersFactory");
 const Student = require("../models/studentModel");
-const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 
-exports.uploadStudentImage = uploadSingleImage("image");
-
-exports.resizeImage = asyncHandler(async (req, res, next) => {
-  const filename = `student-${uuidv4()}-${Date.now()}.jpeg`;
-
-  if (req.file) {
-    await sharp(req.file.buffer)
-      .resize(600, 600)
-      .toFormat("jpeg")
-      .jpeg({ quality: 95 })
-      .toFile(`uploads/students/${filename}`);
-  }
-
-  // save image into DB
-  req.body.image = filename;
-
-  next();
-});
+const asyncHandler = require("express-async-handler");
+const fs = require("fs").promises;
 
 // @desc    Get list of Students
 // @route   GET /api/v1/Students
@@ -38,7 +17,41 @@ exports.getStudent = factory.getOne(Student);
 // @desc    Create Student
 // @route   POST  /api/v1/Students
 // @access  Private
-exports.createStudent = factory.createOne(Student);
+exports.createStudent = (Model) =>
+  asyncHandler(async (req, res) => {
+    // Check if a file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: "No image uploaded" });
+    }
+
+    const { name, address, dateOfBirth, ...otherFields } = req.body;
+
+    try {
+      // Read the image file as a buffer
+      const imageBuffer = await fs.readFile(req.file.path);
+
+      // Create a new student with image buffer
+      const newDocument = await Model.create({
+        name,
+        address,
+        dateOfBirth,
+        // // 1
+        photo: {
+          data: imageBuffer,
+          contentType: req.file.mimetype,
+        },
+        ...otherFields,
+      });
+
+      // Delete the temporary file after processing
+      await fs.unlink(req.file.path);
+
+      res.status(201).json({ data: newDocument });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
 
 // @desc    Update specific Student
 // @route   PUT /api/v1/Students/:id
